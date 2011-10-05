@@ -24,9 +24,14 @@ default:
 	@echo "             stricter coding standard)"
 
 
+# extension specific targets
+link:
+	rm -rf extensions/site/sites/extensions
+	cd extensions/site/sites && ln -s ../../../site extensions
+
 # top level target
 
-install: directories libraries
+install: directories libraries link
 
 clean:
 	rm -rf cache/* logs/*

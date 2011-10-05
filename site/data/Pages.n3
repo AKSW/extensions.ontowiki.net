@@ -1,0 +1,59 @@
+@prefix content: <http://purl.org/rss/1.0/modules/content/>.
+@prefix dbpedia: <http://dbpedia.org/resource/> .
+@prefix dcterms: <http://purl.org/dc/terms/>.
+@prefix doap: <http://usefulinc.com/ns/doap#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix lod2: <http://lod2.eu/schema/> .
+@prefix ov: <http://open.vocab.org/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sioc: <http://rdfs.org/sioc/ns#>.
+@prefix sioct: <http://rdfs.org/sioc/types#>.
+@prefix site: <http://ns.ontowiki.net/SysOnt/Site/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix sysont: <http://ns.ontowiki.net/SysOnt/> .
+@prefix v:  <http://www.w3.org/2006/vcard/ns#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://extensions.ontowiki.net/> .
+
+
+# navigation resources and external pages
+#<http://aksw.org/Navigation/Main> a site:Navigation;
+#    rdf:_1 :About;
+#    rdf:_2 :Groups;
+#    rdf:_3 :Projects;
+#    rdf:_4 :Publications;
+#    rdf:_5 :Presentations;
+#    rdf:_6 :Teaching;
+#    rdf:_7 :Partners;
+#    rdfs:label "Main Navigation".
+
+<http://extensions.ontowiki.net/Navigation/Top> a site:Navigation;
+    rdf:_1 :Contact;
+    rdf:_2 <http://blog.aksw.org>;
+    rdf:_4 :Imprint;
+    rdfs:label "Top Navigation".
+
+<http://blog.aksw.org> rdfs:label "Blog".
+
+# page resources
+:NotFound a foaf:Document;
+    site:content """
+Either the resource you are trying to reach is not available anymore on this server, or you have tried to access a 'dead' link.
+"""^^sysont:Markdown;
+    rdfs:label "404".
+
+:Contact a foaf:Document;
+    site:content """
+...
+"""^^sysont:Markdown;
+    rdfs:label "Contact".
+
+:Imprint a foaf:Document;
+    site:content """
+...
+"""^^sysont:Markdown;
+    rdfs:label "Imprint".
+

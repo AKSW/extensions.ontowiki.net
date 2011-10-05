@@ -1,0 +1,20 @@
+<?php
+/**
+ * This file is part of the {@link http://ontowiki.net OntoWiki} project.
+ *
+ * @copyright Copyright (c) 2011, {@link http://aksw.org AKSW}
+ * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
+ */
+
+/**
+ * header template
+ */
+$navOptions = array(
+    'navResource' => 'http://extensions.ontowiki.net/Navigation/Top',
+    'navId' => 'nav-main',
+    'suffix'    => '<!-- /#nav-main -->',
+    'activeUrl' => $this->resourceUri
+);
+echo $this->navigationList($navOptions);
+?>
+
