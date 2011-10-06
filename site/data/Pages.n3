@@ -18,30 +18,24 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix : <http://extensions.ontowiki.net/> .
 
-
-# navigation resources and external pages
-#<http://aksw.org/Navigation/Main> a site:Navigation;
-#    rdf:_1 :About;
-#    rdf:_2 :Groups;
-#    rdf:_3 :Projects;
-#    rdf:_4 :Publications;
-#    rdf:_5 :Presentations;
-#    rdf:_6 :Teaching;
-#    rdf:_7 :Partners;
-#    rdfs:label "Main Navigation".
-
 <http://extensions.ontowiki.net/Navigation/Top> a site:Navigation;
     rdf:_1 :Contact;
     rdf:_2 <http://blog.aksw.org>;
-    rdf:_4 :Imprint;
+    rdf:_4 <http://aksw.org/Imprint>;
     rdfs:label "Top Navigation".
+
+<http://extensions.ontowiki.net/Navigation/Teaser> a site:Navigation;
+    rdf:_1 :Register;
+    rdf:_2 :Help;
+    rdf:_3 :Tools;
+    rdfs:label "Teaser Navigation".
 
 <http://blog.aksw.org> rdfs:label "Blog".
 
 # page resources
 :NotFound a foaf:Document;
     site:content """
-Either the resource you are trying to reach is not available anymore on this server, or you have tried to access a 'dead' link.
+# Either the resource you are trying to reach is not available anymore on this server, or you have tried to access a 'dead' link.
 """^^sysont:Markdown;
     rdfs:label "404".
 
@@ -51,9 +45,40 @@ Either the resource you are trying to reach is not available anymore on this ser
 """^^sysont:Markdown;
     rdfs:label "Contact".
 
-:Imprint a foaf:Document;
+:Register a foaf:Document;
     site:content """
-...
+# Welcome to the OntoWiki Extension Registry
+
+This website is a resource for OntoWiki extension **developer** which want to register new extension or update the meta data of their existing OntoWiki extensions.
+
+OntoWiki **users** typically browse the extension registry inside of their OntoWiki installation by using the extension installer.
+
+If you are unsure how to proceed from here, please have a look on the {{link l="Documentation" text="documentation page"}} which gives you a rough checklist as well as links to further documents on the topic.
+
+If you maintain more than a single extension, maybe to {{link l="Tools" text="tools page"}} can help you to automate and optimize you publishing workflow.
 """^^sysont:Markdown;
-    rdfs:label "Imprint".
+    rdfs:label "Register / Update".
+
+:Help a foaf:Document;
+    site:content """
+<div class="teasertext">
+<p>On the right side you see a <strong>rough checklist</strong>, what you need in order to register an extension here.</p>
+<p>More documentation is coming soon, until then - please have a look on <strong>existing extensions</strong>.</p>
+</div>
+<div class="teaserapplication">
+    <ul class="bigger">
+        <li>Develop your OntoWiki extension and release it somewhere</li>
+        <li>Create an RDF document which describes your extension</li>
+        <li>Publish that description document as Linked Data on the web</li>
+        <li>Ping this registry to integrate your extension meta data here</li>
+    </ul>
+</div>
+"""^^sysont:Markdown;
+    rdfs:label "Documentation".
+
+:Tools a foaf:Document;
+    site:content """
+# Under Construction
+"""^^sysont:Markdown;
+    rdfs:label "Tools".
 
