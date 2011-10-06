@@ -9,12 +9,36 @@
 /**
  * header template
  */
-$navOptions = array(
+$navOptionsTop = array(
     'navResource' => 'http://extensions.ontowiki.net/Navigation/Top',
     'navId' => 'nav-main',
+    'listTag' => 'ol',
     'suffix'    => '<!-- /#nav-main -->',
     'activeUrl' => $this->resourceUri
 );
-echo $this->navigationList($navOptions);
+$navOptionsTeaser = array(
+    'navResource' => 'http://extensions.ontowiki.net/Navigation/Teaser',
+    'navId' => 'teasertabs',
+    'navClass' => 'bigger',
+    'listClass' => 'tabs',
+    'listTag' => 'ul',
+    'activeItemClass' => 'ui-tabs-selected',
+    'activeUrl' => $this->resourceUri
+);
 ?>
+<body id="cat_home">
+<div id="bgtop" class="bgsite"></div>
+<div id="bgbottom" class="bgsite"></div>
 
+<div class="page_margins">
+    <header id="header">
+        <h1><a href="http://ontowiki.net">OntoWiki<span id="logo"></span></a></h1>
+        <?php echo $this->navigationList($navOptionsTop) ?>
+    </header> <!-- /#header -->
+
+    <hr class="hideme"/>
+
+    <header id="teaser"> 
+        <?php echo $this->navigationList($navOptionsTeaser) ?>
+        <section class="teaser">
+            <!--div class="teasertext"-->
