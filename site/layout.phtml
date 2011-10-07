@@ -47,6 +47,7 @@ $templateData           = $this->templateData;
     </script>
     <script src="<?php echo $this->baseUri ?>/libs/headjs/head.min.js" type="text/javascript"></script>
     <script src="<?php echo $this->baseUri ?>/scripts/headjs.settings.js" type="text/javascript"></script>
+    
     <!-- script src="" type="text/javascript"></script -->
 
     <!-- (c)2011 Michael Haschke, Webentwicklung | http://48augen.de/ -->
@@ -75,9 +76,10 @@ $templateData           = $this->templateData;
         rel="<?php echo $this->curie('http://xmlns.com/foaf/0.1/primaryTopic') ?>"
         href="<?php echo $this->resourceUri?>" />
 
-<!--
+
     <script type="text/javascript" src="<?php echo $this->themeUrlBase ?>scripts/libraries/jquery.js"></script>
-    <script type="text/javascript" src="<?php echo $this->themeUrlBase ?>scripts/libraries/jquery-ui.js"></script>
+    <script src="<?php echo $this->baseUri ?>/scripts/ajaxManageExtensions.js" type="text/javascript"></script>
+<!--    <script type="text/javascript" src="<?php echo $this->themeUrlBase ?>scripts/libraries/jquery-ui.js"></script>
 -->
     <!--script type="text/javascript" src="<?php echo $this->libraryUrlBase ?>RDFauthor/src/rdfauthor.js"></script-->
 

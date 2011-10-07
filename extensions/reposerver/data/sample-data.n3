@@ -1,0 +1,17 @@
+# Exported with the Erfurt API - http://aksw.org/Projects/Erfurt
+
+@base <http://localhost/ow-git/extension/e1> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix ns0: <http://ns.aksw.net/> .
+@prefix ns1: <http://ns.ontowiki.net/Extensions/> .
+@prefix ns2: <http://purl.org/net/pingback/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://localhost/ow-git/extension/e1> ns0:repo-key "929a469c120868476dba452f4e61f678" ;
+                                       ns1:latestReleaseLocation <http://localhost/test.zip> ;
+                                       ns1:latestVersion "0.1" ;
+                                       dc:description "a test extension thats accessible via LinkedData" ;
+                                       ns2:to <http://localhost/ow-git/pingback/ping/> ;
+                                       a ns1:Extension, <http://www.w3.org/2002/07/owl#Ontology> ;
+                                       rdfs:label "extension1" .
