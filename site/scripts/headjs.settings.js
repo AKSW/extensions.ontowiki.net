@@ -18,7 +18,8 @@ head.js(
         siteBase + '/libs/jquery/jquery.min.js',
         // -- plugin libraries --
         //"http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"
-        siteBase + '/libs/jquery/jqueryui.min.js'
+        siteBase + '/libs/jquery/jqueryui.min.js',
+        siteBase + '/scripts/jquery.prefill.js'
         // -- settings and configuration --
         //"./js/zettings/global.min.js"
        );
@@ -26,7 +27,7 @@ head.js(
 // check document and load dynamically all optional JS
 head.ready(function() {
     // scope: tabbing
-    $('.tabcontainer').tabs();
+    // $('.tabcontainer').tabs();
 
     // scope: lightbox for images and videos
     if ($('a.showlightbox').size() > 0) {
