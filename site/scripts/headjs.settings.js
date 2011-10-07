@@ -19,6 +19,7 @@ head.js(
         // -- plugin libraries --
         //"http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"
         siteBase + '/libs/jquery/jqueryui.min.js',
+        siteBase + '/scripts/ajaxManageExtensions.js',
         siteBase + '/scripts/jquery.prefill.js'
         // -- settings and configuration --
         //"./js/zettings/global.min.js"
