@@ -3,11 +3,22 @@ $(document).ready(function(){
     $("#updateExtensionButton").click(function(){
         var url = $("#updateExtensionInput").val()
         if(url != "" && url != $("#updateExtensionInput").attr("title")){
-            $.post("reposerver/update",{"url": url }, function(data, status){
-                if(data.ok){
-                    alert("ok")
-                }
-            }, "json")
+            $.ajax({
+                type: 'POST',
+                url: "reposerver/update",
+                data: {"url": url },
+                success: function(data, status){
+                    if(data.ok){
+                        alert("extension registered")
+                    } else {
+                        alert(data.message)
+                    }
+                },
+                error: function (){
+                     alert("unexpected response")
+                },
+                dataType: "json"
+            });
         }
     })
 })

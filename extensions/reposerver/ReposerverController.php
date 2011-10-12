@@ -34,35 +34,34 @@ class ReposerverController extends OntoWiki_Controller_Component
             if($store->isModelAvailable($repoGraphUrl)){
                 $repoGraph = $store->getModel($repoGraphUrl);
             } else {
-                $repoGraph = $store->getNewModel($repoGraphUrl, '', Erfurt_Store::MODEL_TYPE_OWL,false);
+                $repoGraph = $store->getNewModel($repoGraphUrl, '', Erfurt_Store::MODEL_TYPE_OWL, false);
             }
-            
             
             $res = self::addExtension($url, $repoGraphUrl);
             
             if($res == DatagatheringController::IMPORT_OK){
-                return $this->_sendResponse($res, 'The wrapper had an error.', OntoWiki_Message::ERROR);
+                return $this->_sendResponse($res, 'extension registered/updated.');
             } else {
                 if($res == DatagatheringController::IMPORT_WRAPPER_ERR){
-                    return $this->_sendResponse($res, 'The wrapper had an error.', OntoWiki_Message::ERROR);
+                    return $this->_sendResponse($res, 'The wrapper had an error.');
                 } else if($res == DatagatheringController::IMPORT_NO_DATA){
-                    return $this->_sendResponse($res, 'No statements were found.', OntoWiki_Message::ERROR);
+                    return $this->_sendResponse($res, 'No statements were found with linked data under this url.');
                 } else if($res == DatagatheringController::IMPORT_WRAPPER_INSTANCIATION_ERR){
-                    return $this->_sendResponse($res, 'could not get wrapper instance.', OntoWiki_Message::ERROR);
+                    return $this->_sendResponse($res, 'could not get wrapper instance.');
                 } else if($res == DatagatheringController::IMPORT_NOT_EDITABLE){
-                    return $this->_sendResponse($res, 'you cannot write to this model.', OntoWiki_Message::ERROR);
+                    return $this->_sendResponse($res, 'you cannot write to the extension-repo model.');
                 } else if($res == DatagatheringController::IMPORT_WRAPPER_EXCEPTION){
-                    return $this->_sendResponse($res, 'the wrapper run threw an error.', OntoWiki_Message::ERROR);
+                    return $this->_sendResponse($res, 'the wrapper run threw an unexpected exception.');
                 } else if($res == DatagatheringController::IMPORT_WRAPPER_NOT_AVAILABLE){
-                    return $this->_sendResponse($res, 'the data is not available.', OntoWiki_Message::ERROR);
+                    return $this->_sendResponse($res, 'the data is not available. is the url correct?');
                 } else {
-                    return $this->_sendResponse($res, 'unexpected return value.', OntoWiki_Message::ERROR);
+                    return $this->_sendResponse($res, 'unexpected return value.');
                 }
             }
         }
     }
     
-    private function _sendResponse($returnValue, $message = null, $messageType = OntoWiki_Message::SUCCESS)
+    private function _sendResponse($returnValue, $message = "")
     {
         $this->_response->setHeader('Content-Type', 'application/json', true);
         $this->_response->setBody(json_encode(array("status"=> $returnValue==DatagatheringController::IMPORT_OK, "returnValue"=>$returnValue, "message"=>$message)));
