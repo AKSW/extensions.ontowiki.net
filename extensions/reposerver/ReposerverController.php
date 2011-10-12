@@ -50,12 +50,12 @@ class ReposerverController extends OntoWiki_Controller_Component
                     return $this->_sendResponse($res, 'No statements were found.', OntoWiki_Message::ERROR);
                 } else if($res == DatagatheringController::IMPORT_WRAPPER_INSTANCIATION_ERR){
                     return $this->_sendResponse($res, 'could not get wrapper instance.', OntoWiki_Message::ERROR);
-                    //$this->_response->setException(new OntoWiki_Http_Exception(400));
                 } else if($res == DatagatheringController::IMPORT_NOT_EDITABLE){
                     return $this->_sendResponse($res, 'you cannot write to this model.', OntoWiki_Message::ERROR);
-                    //$this->_response->setException(new OntoWiki_Http_Exception(403));
                 } else if($res == DatagatheringController::IMPORT_WRAPPER_EXCEPTION){
                     return $this->_sendResponse($res, 'the wrapper run threw an error.', OntoWiki_Message::ERROR);
+                } else if($res == DatagatheringController::IMPORT_WRAPPER_NOT_AVAILABLE){
+                    return $this->_sendResponse($res, 'the data is not available.', OntoWiki_Message::ERROR);
                 } else {
                     return $this->_sendResponse($res, 'unexpected return value.', OntoWiki_Message::ERROR);
                 }
