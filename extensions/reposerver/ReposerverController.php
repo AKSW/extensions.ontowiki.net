@@ -27,7 +27,7 @@ class ReposerverController extends OntoWiki_Controller_Component
     {
         if ($this->_request->isPost()) {
             $url = $this->_request->getParam('url');
-            $ow = $this->_owApp;
+            
             $store = $this->_erfurt->getStore();
             
             $repoGraphUrl = $this->_privateConfig->url;
@@ -37,10 +37,9 @@ class ReposerverController extends OntoWiki_Controller_Component
                 $repoGraph = $store->getNewModel($repoGraphUrl, '', Erfurt_Store::MODEL_TYPE_OWL,false);
             }
             
-            //fill new model via linked data
-            require_once $ow->extensionManager->getExtensionPath('datagathering') . DIRECTORY_SEPARATOR . 'DatagatheringController.php';
-            $res = DatagatheringController::import($repoGraphUrl, $url, $url, false, array(), array(), 'linkeddata', 'none', 'update', false);
-
+            
+            $res = self::addExtension($url, $repoGraphUrl);
+            
             if($res == DatagatheringController::IMPORT_OK){
                 return $this->_sendResponse($res, 'The wrapper had an error.', OntoWiki_Message::ERROR);
             } else {
@@ -66,9 +65,17 @@ class ReposerverController extends OntoWiki_Controller_Component
     private function _sendResponse($returnValue, $message = null, $messageType = OntoWiki_Message::SUCCESS)
     {
         $this->_response->setHeader('Content-Type', 'application/json', true);
-        $this->_response->setBody(json_encode(array("status"=>$returnValue==DatagatheringController::IMPORT_OK, "returnValue"=>$returnValue, "message"=>$message)));
+        $this->_response->setBody(json_encode(array("status"=> $returnValue==DatagatheringController::IMPORT_OK, "returnValue"=>$returnValue, "message"=>$message)));
         $this->_response->sendResponse();
         exit;
+    }
+    
+    public static function addExtension($url, $repoGraphUrl){
+        $ow = OntoWiki::getInstance();
+        //fill new model via linked data
+        require_once $ow->extensionManager->getExtensionPath('datagathering') . DIRECTORY_SEPARATOR . 'DatagatheringController.php';
+        $res = DatagatheringController::import($repoGraphUrl, $url, $url, false, array(), array(), 'linkeddata', 'none', 'update', false);
+        return $res;
     }
 }
 
