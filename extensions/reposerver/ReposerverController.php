@@ -14,6 +14,10 @@
 class ReposerverController extends OntoWiki_Controller_Component
 {
     
+    const OW_CONFIG_NS = 'http://ns.ontowiki.net/SysOnt/ExtensionConfig/';
+    const FOAF_NS = 'http://xmlns.com/foaf/0.1/';
+    const DOAP_NS = 'http://usefulinc.com/ns/doap#';
+
     /**
      * Default action. Forwards to get action.
      */
@@ -45,7 +49,7 @@ class ReposerverController extends OntoWiki_Controller_Component
                 if($res == DatagatheringController::IMPORT_WRAPPER_ERR){
                     return $this->_sendResponse($res, 'The wrapper had an error.');
                 } else if($res == DatagatheringController::IMPORT_NO_DATA){
-                    return $this->_sendResponse($res, 'No statements were found with linked data under this url.');
+                    return $this->_sendResponse($res, 'No new statements were found with linked data under this url.');
                 } else if($res == DatagatheringController::IMPORT_WRAPPER_INSTANCIATION_ERR){
                     return $this->_sendResponse($res, 'could not get wrapper instance.');
                 } else if($res == DatagatheringController::IMPORT_NOT_EDITABLE){
@@ -69,12 +73,83 @@ class ReposerverController extends OntoWiki_Controller_Component
         exit;
     }
     
-    public static function addExtension($url, $repoGraphUrl){
+    public static function addExtension($extensionUrl, $repoGraphUrl){
         $ow = OntoWiki::getInstance();
+        $store = Erfurt_App::getInstance()->getStore();
+        
+        //create repo graph if not exists
+        if (!$store->isModelAvailable($repoGraphUrl)){
+            // create model
+            $store->getNewModel(
+                $repoGraphUrl,
+                '',
+                Erfurt_Store::MODEL_TYPE_OWL,
+                false
+            );
+        }
+        
+        //import each extension into its own model
+        if (!$store->isModelAvailable($extensionUrl)){
+            // create model
+            $store->getNewModel(
+                $extensionUrl,
+                '',
+                Erfurt_Store::MODEL_TYPE_OWL,
+                false
+            );
+
+            //import
+            $store->addStatement($repoGraphUrl, $repoGraphUrl, EF_OWL_IMPORTS, array('value'=>$extensionUrl, 'type'=>'uri'));
+
+
+            //connect repo to that extension
+            $store->addStatement($repoGraphUrl, $repoGraphUrl, 'hasExtension', array('value'=>$extensionUrl, 'type'=>'uri'));
+        } 
+        
         //fill new model via linked data
         require_once $ow->extensionManager->getExtensionPath('datagathering') . DIRECTORY_SEPARATOR . 'DatagatheringController.php';
-        $res = DatagatheringController::import($repoGraphUrl, $url, $url, true, array(), array(), 'linkeddata', 'none', 'update', false);
+        $res = DatagatheringController::import($extensionUrl, $extensionUrl, $extensionUrl, true, array(), array(), 'linkeddata', 'none', 'update', true, array(__CLASS__, 'filter'));
         return $res;
+    }
+    
+    static function filter($statements)
+    {
+        $model = new Erfurt_Rdf_MemoryModel($statements);
+        $extensionUri = $model->getValue('', self::FOAF_NS.'primaryTopic');
+        //$privateNS = $model->getValue($extensionUri, self::OW_CONFIG_NS.'privateNamespace');
+        $allowedSubjects = array('', $extensionUri); //TODO @base is empty when parsing n3
+        $releases = $model->getValues($extensionUri, self::DOAP_NS.'release');
+        foreach ($releases as $value) {
+            $allowedSubjects[] = $value['value'];
+        }
+        $logger = Erfurt_App::getInstance()->getLog('repo');
+        $logger->log('$allowedSubjects: '. print_r($allowedSubjects, true), 1);
+
+        $allowedPredicates = array(
+            EF_RDF_TYPE,
+            self::DOAP_NS.'name', 
+            self::DOAP_NS.'description', 
+            self::DOAP_NS.'maintainer', 
+            self::OW_CONFIG_NS.'authorLabel', 
+            self::DOAP_NS.'release', //links to the versions
+            self::DOAP_NS.'revision', //the following are properties of the versions
+            self::DOAP_NS.'created', 
+            self::DOAP_NS.'file-release'
+        );
+        
+        foreach ($model->getSubjects() as $subject) {
+            if (!in_array($subject, $allowedSubjects)) {
+                $model->removeS($subject);
+            } else {
+                foreach ($model->getPO($subject) as $predicate => $values) {
+                    if (!in_array($predicate, $allowedPredicates)) {
+                        $model->removePredicateOf($subject, $predicate);
+                    }
+                }
+            }
+        }
+        
+        return $model->getStatements();
     }
 }
 
