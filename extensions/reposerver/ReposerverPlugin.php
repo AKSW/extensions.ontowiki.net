@@ -10,7 +10,7 @@ class ReposerverPlugin extends OntoWiki_Plugin
     {
         if($event->p == ReposerverController::OW_CONFIG_NS.'registeredAt'){
             try{
-                self::addExtension($event->s, $this->_privateConfig->url);            
+                ReposerverController::addExtension($event->s, $this->_privateConfig->url);            
             } catch ( Exception $e){
                 $this->_log('Error: '.$e);
             }
