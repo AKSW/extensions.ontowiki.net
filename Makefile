@@ -1,7 +1,18 @@
 ZENDVERSION=1.11.5
 
 default:
+	@echo "Typical targets your could want to reach:"
+	@echo ""
+	@echo "--> 'make deploy' : install OntoWiki <-- in doubt, use this"
+	@echo "                    (use this for server installations)"
+	@echo "    'make install': install OntoWiki for developer"
+	@echo "                    (you will need github access and ssh for this)"
+	@echo "    'make help'   : show more (developer related) make targets"
+	@echo "                    (this includes all code sniffing targets)"
+
+help:
 	@echo "please use:"
+	@echo "     'make deploy' (-> runs everything which is needed for a deployment)"
 	@echo "     'make install' (-> make directories, zend and libraries)"
 	@echo "     'make directories' (create cache/log dir and chmod environment)"
 	@echo "     'make zend' (download and install Zend under libraries)"
@@ -38,6 +49,15 @@ link:
 
 # top level target
 
+deploy: directories clean zend
+	rm -rf libraries/RDFauthor
+	@echo 'Cloning RDFauthor into libraries/RDFauthor ...'
+	git clone git://github.com/AKSW/RDFauthor.git libraries/RDFauthor
+	rm -rf libraries/Erfurt
+	@echo 'Cloning Erfurt into libraries/Erfurt ...'
+	git clone git://github.com/AKSW/Erfurt.git libraries/Erfurt
+
+
 install: directories libraries link
 
 clean:
@@ -57,22 +77,23 @@ submodules:
 
 pull:
 	git pull
-	cd libraries/RDFauthor && git pull
-	cd libraries/Erfurt && git pull
+	git submodule foreach git pull
 
-update: pull
+fetch: 
+	git fetch
+	git submodule foreach git fetch
 
-force-update: pull
+info:
+	@git --no-pager log -1 --oneline --decorate
+	@git submodule foreach git --no-pager log -1 --oneline --decorate
 
 status:
 	git status -sb
-	cd libraries/RDFauthor && git status -sb
-	cd libraries/Erfurt && git status -sb
+	git submodule foreach git status -sb
 
 branch-check:
-	git rev-parse --abbrev-ref HEAD
-	git --work-tree=libraries/Erfurt rev-parse --abbrev-ref HEAD
-	git --work-tree=libraries/RDFauthor rev-parse --abbrev-ref HEAD
+	@git rev-parse --abbrev-ref HEAD
+	@git submodule foreach git rev-parse --abbrev-ref HEAD
 
 # libraries
 
@@ -86,19 +107,9 @@ zend:
 rdfauthor:
 	rm -rf libraries/RDFauthor
 	@echo 'Cloning RDFauthor into libraries/RDFauthor ...'
-	git clone git://github.com/AKSW/RDFauthor.git libraries/RDFauthor
-
-rdfauthor-dev:
-	rm -rf libraries/RDFauthor
-	@echo 'Cloning RDFauthor into libraries/RDFauthor ...'
 	git clone git@github.com:AKSW/RDFauthor.git libraries/RDFauthor
 
 erfurt:
-	rm -rf libraries/Erfurt
-	@echo 'Cloning Erfurt into libraries/Erfurt ...'
-	git clone git://github.com/AKSW/Erfurt.git libraries/Erfurt
-
-erfurt-dev:
 	rm -rf libraries/Erfurt
 	@echo 'Cloning Erfurt into libraries/Erfurt ...'
 	git clone git@github.com:AKSW/Erfurt.git libraries/Erfurt
