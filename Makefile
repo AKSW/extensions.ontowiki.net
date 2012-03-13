@@ -51,8 +51,8 @@ help:
 
 # extension specific targets
 link:
-	rm -rf extensions/site/sites/extensions
-	cd extensions/site/sites && ln -s ../../../site extensions
+	rm -rf extensions/site/sites/local
+	cd extensions/site/sites && ln -s ../../../site local
 
 # top level target
 
