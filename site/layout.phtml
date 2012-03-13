@@ -93,9 +93,9 @@ $templateData           = $this->templateData;
 </head>
 <body<?php
     foreach ($this->namespaces as $prefix => $ns): ?><?php echo ' xmlns:' . $prefix . '="' . $ns . '"' ?><?php endforeach; ?>>
-    <?php echo $this->partial('extensions/header.phtml', $templateData) ?>
+    <?php echo $this->partial('local/header.phtml', $templateData) ?>
     <?php echo $this->renderx(); ?>
-    <?php echo $this->partial('extensions/footer.phtml', $templateData) ?>
+    <?php echo $this->partial('local/footer.phtml', $templateData) ?>
 </body>
 </html>
 
