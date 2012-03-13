@@ -63,20 +63,16 @@ class ApplicationController extends OntoWiki_Controller_Base
             )
         );
 
-        // check if the mercurial comand exists and ontowiki is a working directory
-        @exec("hg", $hg);
+        // check if the git comand exists and ontowiki is a working directory
         if (
-            file_exists(".hg") &&
-            isset($hg[0]) &&$hg[0] == "Mercurial Distributed SCM"
+            file_exists(".git") &&
+            substr(@exec("git --version"), 0, 11) == "git version"
         ) {
-            $csId = rtrim(exec("hg id -i"), "+");
-            exec("hg version", $version);
-            exec("hg log -r " . $csId, $log);
-
-            $data['Mercurial Versioning'] = array(
-              'Branch' => exec("hg branch"),
-              'Revision' => $log[0].", ".$log[3],
-              'Mercurial Version'  => $version[0]
+            @exec('git status', $arr);
+            $data['Git Versioning'] = array(
+              'Branch' => substr($arr[0],12),
+              'last commit' => @exec("git log --pretty=format:'%ar' -n 1"),
+              'Git Version'  => substr(@exec("git --version"),12)
             );
         }
 
@@ -125,7 +121,6 @@ class ApplicationController extends OntoWiki_Controller_Base
         if ($this->_owApp->selectedModel instanceof Erfurt_Rdf_Model) {
             $this->_owApp->selectedModel = $erfurt->getStore()->getModel((string) $this->_owApp->selectedModel);
         }
-
 
         $this->_owApp->authResult = $authResult->getMessages();
     }
@@ -182,17 +177,17 @@ class ApplicationController extends OntoWiki_Controller_Base
         $this->view->placeholder('main.window.title')->set('Register User');
 
         $this->view->formActionUrl = $this->_config->urlBase . 'application/register';
-		$this->view->formMethod    = 'post';
-		$this->view->formClass     = 'simple-input input-justify-left';
-		$this->view->formName      = 'registeruser';
+        $this->view->formMethod    = 'post';
+        $this->view->formClass     = 'simple-input input-justify-left';
+        $this->view->formName      = 'registeruser';
         $this->view->username      = '';
         $this->view->readonly      = '';
         $this->view->email         = '';
 
-		$toolbar = $this->_owApp->toolbar;
-		$toolbar->appendButton(OntoWiki_Toolbar::SUBMIT, array('name' => 'Register User'))
-		        ->appendButton(OntoWiki_Toolbar::RESET, array('name' => 'Reset Form'));
-		$this->view->placeholder('main.window.toolbar')->set($toolbar);
+        $toolbar = $this->_owApp->toolbar;
+        $toolbar->appendButton(OntoWiki_Toolbar::SUBMIT, array('name' => 'Register User'))
+                ->appendButton(OntoWiki_Toolbar::RESET, array('name' => 'Reset Form'));
+        $this->view->placeholder('main.window.toolbar')->set($toolbar);
 
         $post = $this->_request->getPost();
 
@@ -221,7 +216,9 @@ class ApplicationController extends OntoWiki_Controller_Base
             }
 
             $email       = $post['email'];
+            $this->view->email = $email;
             $username    = $post['username'];
+            $this->view->username = $username;
             $password    = $post['password'];
             $passwordTwo = $post['password2'];
 
@@ -304,9 +301,9 @@ class ApplicationController extends OntoWiki_Controller_Base
 
         $this->view->placeholder('main.window.title')->set('Register User with OpenID');
         $this->view->formActionUrl = $this->_config->urlBase . 'application/openidreg';
-		$this->view->formMethod    = 'post';
-		$this->view->formClass     = 'simple-input input-justify-left';
-		$this->view->formName      = 'registeruser';
+        $this->view->formMethod    = 'post';
+        $this->view->formClass     = 'simple-input input-justify-left';
+        $this->view->formName      = 'registeruser';
 
         // Fetch POST and GET of the request. One of them or both will be empty.
         $post = $this->_request->getPost();
@@ -381,9 +378,9 @@ class ApplicationController extends OntoWiki_Controller_Base
                 $this->view->step     = 1;
 
                 $toolbar = $this->_owApp->toolbar;
-        		$toolbar->appendButton(OntoWiki_Toolbar::SUBMIT, array('name' => 'Check OpenID'))
-        		        ->appendButton(OntoWiki_Toolbar::RESET, array('name' => 'Reset Form'));
-        		$this->view->placeholder('main.window.toolbar')->set($toolbar);
+                $toolbar->appendButton(OntoWiki_Toolbar::SUBMIT, array('name' => 'Check OpenID'))
+                        ->appendButton(OntoWiki_Toolbar::RESET, array('name' => 'Reset Form'));
+                $this->view->placeholder('main.window.toolbar')->set($toolbar);
             } else if ((int)$post['step'] === 2) {
                 // Step 2: OpenID was verified and user clicked on register button.
                 $openid = $post['openid_url'];
@@ -464,9 +461,9 @@ class ApplicationController extends OntoWiki_Controller_Base
             $this->view->checked  = true; // We use this to show a green icon for success
 
             $toolbar = $this->_owApp->toolbar;
-    		$toolbar->appendButton(OntoWiki_Toolbar::SUBMIT, array('name' => 'Register User'))
-    		        ->appendButton(OntoWiki_Toolbar::CANCEL, array('name' => 'Cancel', 'class' => 'openidreg-cancel'));
-    		$this->view->placeholder('main.window.toolbar')->set($toolbar);
+            $toolbar->appendButton(OntoWiki_Toolbar::SUBMIT, array('name' => 'Register User'))
+                    ->appendButton(OntoWiki_Toolbar::CANCEL, array('name' => 'Cancel', 'class' => 'openidreg-cancel'));
+            $this->view->placeholder('main.window.toolbar')->set($toolbar);
         } else {
             // No post and get data... This is the initial form...
             $this->view->openid        = '';
@@ -476,9 +473,9 @@ class ApplicationController extends OntoWiki_Controller_Base
             $this->view->step          = 1;
 
             $toolbar = $this->_owApp->toolbar;
-    		$toolbar->appendButton(OntoWiki_Toolbar::SUBMIT, array('name' => 'Check OpenID'))
-    		        ->appendButton(OntoWiki_Toolbar::RESET, array('name' => 'Reset Form'));
-    		$this->view->placeholder('main.window.toolbar')->set($toolbar);
+            $toolbar->appendButton(OntoWiki_Toolbar::SUBMIT, array('name' => 'Check OpenID'))
+                    ->appendButton(OntoWiki_Toolbar::RESET, array('name' => 'Reset Form'));
+            $this->view->placeholder('main.window.toolbar')->set($toolbar);
         }
     }
 
@@ -491,9 +488,9 @@ class ApplicationController extends OntoWiki_Controller_Base
 
         $this->view->placeholder('main.window.title')->set('Register User with FOAF+SSL');
         $this->view->formActionUrl = $this->_config->urlBase . 'application/webidreg';
-		$this->view->formMethod    = 'post';
-		$this->view->formClass     = 'simple-input input-justify-left';
-		$this->view->formName      = 'registeruser';
+        $this->view->formMethod    = 'post';
+        $this->view->formClass     = 'simple-input input-justify-left';
+        $this->view->formName      = 'registeruser';
 
         // Fetch POST and GET of the request. One of them or both will be empty.
         $post = $this->_request->getPost();
@@ -556,8 +553,8 @@ class ApplicationController extends OntoWiki_Controller_Base
                     }
 
                     $toolbar = $this->_owApp->toolbar;
-            		$toolbar->appendButton(OntoWiki_Toolbar::SUBMIT, array('name' => 'Register'));
-            		$this->view->placeholder('main.window.toolbar')->set($toolbar);
+                    $toolbar->appendButton(OntoWiki_Toolbar::SUBMIT, array('name' => 'Register'));
+                    $this->view->placeholder('main.window.toolbar')->set($toolbar);
 
                     return;
                 } else {
@@ -686,18 +683,18 @@ class ApplicationController extends OntoWiki_Controller_Base
         $username = $user->getUsername();
 
         $this->view->formActionUrl = $this->_config->urlBase . 'application/preferences';
-		$this->view->formMethod    = 'post';
-		$this->view->formClass     = 'simple-input input-justify-left';
-		$this->view->formName      = 'registeruser';
+        $this->view->formMethod    = 'post';
+        $this->view->formClass     = 'simple-input input-justify-left';
+        $this->view->formName      = 'registeruser';
         $this->view->username      = $username;
         $this->view->userReadonly  = $usernameReadonly;
         $this->view->email         = $email;
         $this->view->submitText    = 'Save Changes';
 
         $toolbar = $this->_owApp->toolbar;
-		$toolbar->appendButton(OntoWiki_Toolbar::SUBMIT, array('name' => 'Save Changes', 'id' => 'registeruser'))
-		        ->appendButton(OntoWiki_Toolbar::RESET, array('name' => 'Reset Form'));
-		$this->view->placeholder('main.window.toolbar')->set($toolbar);
+        $toolbar->appendButton(OntoWiki_Toolbar::SUBMIT, array('name' => 'Save Changes', 'id' => 'registeruser'))
+                ->appendButton(OntoWiki_Toolbar::RESET, array('name' => 'Reset Form'));
+        $this->view->placeholder('main.window.toolbar')->set($toolbar);
 
         OntoWiki_Navigation::disableNavigation();
 
@@ -843,27 +840,6 @@ class ApplicationController extends OntoWiki_Controller_Base
             $url->setParam('init', '1');
             $this->_redirect($url);
 
-        }
-
-    }
-
-    public function testAction()
-    {
-        OntoWiki_Navigation::disableNavigation();
-        $this->_helper->viewRenderer->setNoRender();
-        $this->view->placeholder('main.window.title')->set('Test');
-
-        $testModel = new OntoWiki_ModelTestResource($this->_owApp->erfurt->getStore(), $this->_owApp->selectedModel);
-
-        // var_dump((string)$testModel->getQuery());
-        if ($result = $testModel->getQueryResult()) {
-            $had = array();
-            foreach ((array)$result['results']['bindings'] as $resultRow) {
-                if (!array_key_exists($resultRow['class']['value'], $had)) {
-                    $had[$resultRow['class']['value']] = $resultRow['class']['value'];
-                    var_dump($resultRow['class']['value'], $testModel->getTitle($resultRow['class']['value'], 'en'));
-                }
-            }
         }
     }
 }
