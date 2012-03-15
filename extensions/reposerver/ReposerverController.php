@@ -1,19 +1,21 @@
 <?php
+/**
+ * This file is part of the {@link http://erfurt-framework.org Erfurt} project.
+ *
+ * @copyright Copyright (c) 2011, {@link http://aksw.org AKSW}
+ * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
+ */
 
 /**
- * Controller for OntoWiki Filter Module
+ * Controller for OntoWiki Repository Server
  *
  * @category   OntoWiki
- * @package    OntoWiki_extensions_components_files
- * @author     Christoph Rieß <c.riess.dev@googlemail.com>
- * @author     Norman Heino <norman.heino@gmail.com>
- * @copyright  Copyright (c) 2008, {@link http://aksw.org AKSW}
- * @license    http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
- * @version    $Id: FilesController.php 4090 2009-08-19 22:10:54Z christian.wuerker $
+ * @package    OntoWiki_extensions_reposerver
+ * @author     Jonas Brekle <jonas.brekle@gmail.com>
  */
 class ReposerverController extends OntoWiki_Controller_Component
 {
-    
+
     const OW_CONFIG_NS = 'http://ns.ontowiki.net/SysOnt/ExtensionConfig/';
     const FOAF_NS = 'http://xmlns.com/foaf/0.1/';
     const DOAP_NS = 'http://usefulinc.com/ns/doap#';
@@ -21,28 +23,27 @@ class ReposerverController extends OntoWiki_Controller_Component
     /**
      * Default action. Forwards to get action.
      */
-    public function __call($action, $params)
-    {
+    public function __call($action, $params) {
         $this->_forward('update');
     }
-    
-    
+
+
     public function updateAction()
     {
         if ($this->_request->isPost()) {
             $url = $this->_request->getParam('url');
-            
+
             $store = $this->_erfurt->getStore();
-            
+
             $repoGraphUrl = $this->_privateConfig->url;
             if($store->isModelAvailable($repoGraphUrl)){
                 $repoGraph = $store->getModel($repoGraphUrl);
             } else {
                 $repoGraph = $store->getNewModel($repoGraphUrl, '', Erfurt_Store::MODEL_TYPE_OWL, false);
             }
-            
+
             $res = self::addExtension($url, $repoGraphUrl);
-            
+
             if($res == DatagatheringController::IMPORT_OK){
                 return $this->_sendResponse($res, 'extension registered/updated.');
             } else {
@@ -64,7 +65,7 @@ class ReposerverController extends OntoWiki_Controller_Component
             }
         }
     }
-    
+
     private function _sendResponse($returnValue, $message = "")
     {
         $this->_response->setHeader('Content-Type', 'application/json', true);
@@ -72,11 +73,11 @@ class ReposerverController extends OntoWiki_Controller_Component
         $this->_response->sendResponse();
         exit;
     }
-    
+
     public static function addExtension($extensionUrl, $repoGraphUrl){
         $ow = OntoWiki::getInstance();
         $store = Erfurt_App::getInstance()->getStore();
-        
+
         //create repo graph if not exists
         if (!$store->isModelAvailable($repoGraphUrl)){
             // create model
@@ -87,7 +88,7 @@ class ReposerverController extends OntoWiki_Controller_Component
                 false
             );
         }
-        
+
         //import each extension into its own model
         if (!$store->isModelAvailable($extensionUrl)){
             // create model
@@ -104,14 +105,14 @@ class ReposerverController extends OntoWiki_Controller_Component
 
             //connect repo to that extension
             $store->addStatement($repoGraphUrl, $repoGraphUrl, 'hasExtension', array('value'=>$extensionUrl, 'type'=>'uri'));
-        } 
-        
+        }
+
         //fill new model via linked data
         require_once $ow->extensionManager->getExtensionPath('datagathering') . DIRECTORY_SEPARATOR . 'DatagatheringController.php';
         $res = DatagatheringController::import($extensionUrl, $extensionUrl, $extensionUrl, true, array(), array(), 'linkeddata', 'none', 'update', true, array(__CLASS__, 'filter'));
         return $res;
     }
-    
+
     static function filter($statements)
     {
         $model = new Erfurt_Rdf_MemoryModel($statements);
@@ -127,28 +128,28 @@ class ReposerverController extends OntoWiki_Controller_Component
 
         $allowedPredicates = array(
             EF_RDF_TYPE,
-            self::DOAP_NS.'name', 
-            self::DOAP_NS.'description', 
-            self::DOAP_NS.'maintainer', 
-            self::OW_CONFIG_NS.'authorLabel', 
+            self::DOAP_NS.'name',
+            self::DOAP_NS.'description',
+            self::DOAP_NS.'maintainer',
+            self::OW_CONFIG_NS.'authorLabel',
             self::DOAP_NS.'release', //links to the versions
             self::DOAP_NS.'revision', //the following are properties of the versions
-            self::DOAP_NS.'created', 
+            self::DOAP_NS.'created',
             self::DOAP_NS.'file-release'
         );
-        
+
         foreach ($model->getSubjects() as $subject) {
             if (!in_array($subject, $allowedSubjects)) {
                 $model->removeS($subject);
             } else {
                 foreach ($model->getPO($subject) as $predicate => $values) {
                     if (!in_array($predicate, $allowedPredicates)) {
-                        $model->removePredicateOf($subject, $predicate);
+                        $model->removeSP($subject, $predicate);
                     }
                 }
             }
         }
-        
+
         return $model->getStatements();
     }
 }
