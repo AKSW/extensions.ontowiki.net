@@ -120,7 +120,7 @@ class ReposerverController extends OntoWiki_Controller_Component
         $allowedSubjects = array('', $extensionUri); //TODO @base is empty when parsing n3
         $releases = $model->getValues($extensionUri, self::DOAP_NS.'release');
         foreach ($releases as $value) {
-            $allowedSubjects[] = $value['value'];
+            $allowedSubjects[] = $value['value']; //add release versions as allowed subjects
         }
         $logger = Erfurt_App::getInstance()->getLog('repo');
         $logger->log('$allowedSubjects: '. print_r($allowedSubjects, true), 1);
