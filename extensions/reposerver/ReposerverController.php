@@ -128,10 +128,12 @@ class ReposerverController extends OntoWiki_Controller_Component
 
         $allowedPredicates = array(
             EF_RDF_TYPE,
+            EF_RDFS_LABEL,
             self::DOAP_NS.'name',
             self::DOAP_NS.'description',
             self::DOAP_NS.'maintainer',
             self::OW_CONFIG_NS.'authorLabel',
+            self::OW_CONFIG_NS.'latestZip',
             self::DOAP_NS.'release', //links to the versions
             self::DOAP_NS.'revision', //the following are properties of the versions
             self::DOAP_NS.'created',
@@ -147,6 +149,26 @@ class ReposerverController extends OntoWiki_Controller_Component
                         $model->removeSP($subject, $predicate);
                     }
                 }
+            }
+        }
+        
+        //generate latest version triple, if not present (the extensionlist cannot display the indirect property of the version)
+        if($model->getValue($extensionUri, self::OW_CONFIG_NS.'latestZip') == null){
+            $newestVersion = null;
+            $newestVersionDate = null;
+            foreach($releases as $release){
+                $date = $model->getValue($release, self::DOAP_NS.'revision');
+                if($date == null){
+                    continue;;
+                }
+                if($newestVersion == null || version_compare($date, $newestVersionDate, '>')){
+                    $newestVersion = $release;
+                    $newestVersionDate = $date;
+                }
+            }
+            $newestFile = $model->getValue($newestVersion, self::DOAP_NS.'file-release');
+            if($newestFile != null){
+                $model->addRelation($extensionUri, self::OW_CONFIG_NS.'latestZip', $newestVersionDate);
             }
         }
 

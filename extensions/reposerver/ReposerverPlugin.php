@@ -8,14 +8,12 @@ class ReposerverPlugin extends OntoWiki_Plugin
 
     public function onPingReceived($event)
     {
-        if($event->p == ReposerverController::OW_CONFIG_NS.'registeredAt'){
+        if($event->p == ReposerverController::EXTENSION_NS.'registeredAt'){
             try{
                 ReposerverController::addExtension($event->s, $this->_privateConfig->url);            
             } catch ( Exception $e){
                 $this->_log('Error: '.$e);
             }
-            
-            
         }
     }
 }
