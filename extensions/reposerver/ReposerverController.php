@@ -157,13 +157,13 @@ class ReposerverController extends OntoWiki_Controller_Component
             $newestVersion = null;
             $newestVersionDate = null;
             foreach($releases as $release){
-                $date = $model->getValue($release, self::DOAP_NS.'revision');
+                $date = $model->getValue($release['value'], self::DOAP_NS.'revision');
                 if($date == null){
-                    continue;;
+                    continue;
                 }
-                if($newestVersion == null || version_compare($date, $newestVersionDate, '>')){
-                    $newestVersion = $release;
-                    $newestVersionDate = $date;
+                if($newestVersion == null || version_compare($date['value'], $newestVersionDate, '>')){
+                    $newestVersion = $release['value'];
+                    $newestVersionDate = $date['value'];
                 }
             }
             $newestFile = $model->getValue($newestVersion, self::DOAP_NS.'file-release');
