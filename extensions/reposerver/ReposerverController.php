@@ -98,13 +98,13 @@ class ReposerverController extends OntoWiki_Controller_Component
                 Erfurt_Store::MODEL_TYPE_OWL,
                 false
             );
-
-            //import
-            $store->addStatement($repoGraphUrl, $repoGraphUrl, EF_OWL_IMPORTS, array('value'=>$extensionUrl, 'type'=>'uri'));
-
-            //connect repo to that extension
-            $store->addStatement($extensionUrl, $repoGraphUrl, self::OW_CONFIG_NS.'hasExtension', array('value'=>$extensionUrl, 'type'=>'uri'));
         }
+        //import
+        $store->addStatement($repoGraphUrl, $repoGraphUrl, EF_OWL_IMPORTS, array('value'=>$extensionUrl, 'type'=>'uri'));
+
+        //connect repo to that extension
+        $store->addStatement($extensionUrl, $repoGraphUrl, self::OW_CONFIG_NS.'hasExtension', array('value'=>$extensionUrl, 'type'=>'uri'));
+        
 
         //fill new model via linked data
         require_once $ow->extensionManager->getExtensionPath('datagathering') . DIRECTORY_SEPARATOR . 'DatagatheringController.php';
@@ -133,6 +133,7 @@ class ReposerverController extends OntoWiki_Controller_Component
             self::DOAP_NS.'maintainer',
             self::OW_CONFIG_NS.'authorLabel',
             self::OW_CONFIG_NS.'latestZip',
+            self::OW_CONFIG_NS.'latestRevision',
             self::DOAP_NS.'release', //links to the versions
             self::DOAP_NS.'revision', //the following are properties of the versions
             self::DOAP_NS.'created',
