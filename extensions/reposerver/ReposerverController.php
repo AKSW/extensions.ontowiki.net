@@ -102,9 +102,8 @@ class ReposerverController extends OntoWiki_Controller_Component
             //import
             $store->addStatement($repoGraphUrl, $repoGraphUrl, EF_OWL_IMPORTS, array('value'=>$extensionUrl, 'type'=>'uri'));
 
-
             //connect repo to that extension
-            $store->addStatement($repoGraphUrl, $repoGraphUrl, 'hasExtension', array('value'=>$extensionUrl, 'type'=>'uri'));
+            $store->addStatement($extensionUrl, $repoGraphUrl, self::OW_CONFIG_NS.'hasExtension', array('value'=>$extensionUrl, 'type'=>'uri'));
         }
 
         //fill new model via linked data
@@ -155,20 +154,21 @@ class ReposerverController extends OntoWiki_Controller_Component
         //generate latest version triple, if not present (the extensionlist cannot display the indirect property of the version)
         if($model->getValue($extensionUri, self::OW_CONFIG_NS.'latestZip') == null){
             $newestVersion = null;
-            $newestVersionDate = null;
+            $newestRevisionNumber = null;
             foreach($releases as $release){
-                $date = $model->getValue($release['value'], self::DOAP_NS.'revision');
-                if($date == null){
+                $revisionNumber = $model->getValue($release['value'], self::DOAP_NS.'revision');
+                if($revisionNumber == null){
                     continue;
                 }
-                if($newestVersion == null || version_compare($date['value'], $newestVersionDate, '>')){
+                if($newestVersion == null || version_compare($revisionNumber, $newestRevisionNumber, '>')){
                     $newestVersion = $release['value'];
-                    $newestVersionDate = $date['value'];
+                    $newestRevisionNumber = $revisionNumber;
                 }
             }
             $newestFile = $model->getValue($newestVersion, self::DOAP_NS.'file-release');
             if($newestFile != null){
-                $model->addRelation($extensionUri, self::OW_CONFIG_NS.'latestZip', $newestVersionDate);
+                $model->addRelation($extensionUri, self::OW_CONFIG_NS.'latestZip', $newestFile);
+                $model->addAttribute($extensionUri, self::OW_CONFIG_NS.'latestRevision', $newestRevisionNumber);
             }
         }
 
