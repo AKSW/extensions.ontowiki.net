@@ -59,6 +59,8 @@ class ReposerverController extends OntoWiki_Controller_Component
                     return $this->_sendResponse($res, 'the wrapper run threw an unexpected exception.');
                 } else if($res == DatagatheringController::IMPORT_WRAPPER_NOT_AVAILABLE){
                     return $this->_sendResponse($res, 'the data is not available. is the url correct?');
+                } elseif($res == DatagatheringController::IMPORT_CUSTOMFILTER_EXCEPTION){
+                    return $this->_sendResponse($res, 'the doap data misses required properties');
                 } else {
                     return $this->_sendResponse($res, 'unexpected return value.');
                 }
@@ -122,8 +124,8 @@ class ReposerverController extends OntoWiki_Controller_Component
         foreach ($releases as $value) {
             $allowedSubjects[] = $value['value']; //add release versions as allowed subjects
         }
-        $logger = Erfurt_App::getInstance()->getLog('repo');
-        $logger->log('$allowedSubjects: '. print_r($allowedSubjects, true), 1);
+        //$logger = Erfurt_App::getInstance()->getLog('repo');
+        //$logger->log('$allowedSubjects: '. print_r($allowedSubjects, true), 1);
 
         $allowedPredicates = array(
             EF_RDF_TYPE,
@@ -139,19 +141,34 @@ class ReposerverController extends OntoWiki_Controller_Component
             self::DOAP_NS.'created',
             self::DOAP_NS.'file-release'
         );
+        
+        $requiredPredicates = array(
+            EF_RDF_TYPE,
+            EF_RDFS_LABEL,
+            self::DOAP_NS.'name',
+            self::DOAP_NS.'description',
+            self::DOAP_NS.'maintainer',
+            self::OW_CONFIG_NS.'latestZip',
+            self::OW_CONFIG_NS.'latestRevision'
+        );
+        $foundPredicates = array();
+        foreach($requiredPredicates as $p){
+            $foundPredicates[$p] = false;
+        }
 
         foreach ($model->getSubjects() as $subject) {
             if (!in_array($subject, $allowedSubjects)) {
                 $model->removeS($subject);
             } else {
                 foreach ($model->getPO($subject) as $predicate => $values) {
+                    $foundPredicates[$predicate] = true;
                     if (!in_array($predicate, $allowedPredicates)) {
                         $model->removeSP($subject, $predicate);
                     }
                 }
             }
         }
-        
+                
         //generate latest version triple, if not present (the extensionlist cannot display the indirect property of the version)
         if($model->getValue($extensionUri, self::OW_CONFIG_NS.'latestZip') == null){
             $newestVersion = null;
@@ -170,6 +187,15 @@ class ReposerverController extends OntoWiki_Controller_Component
             if($newestFile != null){
                 $model->addRelation($extensionUri, self::OW_CONFIG_NS.'latestZip', $newestFile);
                 $model->addAttribute($extensionUri, self::OW_CONFIG_NS.'latestRevision', $newestRevisionNumber);
+                $foundPredicates[self::OW_CONFIG_NS.'latestZip']  = true;
+                $foundPredicates[self::OW_CONFIG_NS.'latestRevision']  = true;
+            }
+        }
+        
+        //check if all required predicates occured
+        foreach($foundPredicates as $property => $found){
+            if(!$found){
+                throw new Exception('missing property '.$property);
             }
         }
 
