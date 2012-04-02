@@ -110,7 +110,7 @@ class ReposerverController extends OntoWiki_Controller_Component
 
         //fill new model via linked data
         require_once $ow->extensionManager->getExtensionPath('datagathering') . DIRECTORY_SEPARATOR . 'DatagatheringController.php';
-        $res = DatagatheringController::import($extensionUrl, $extensionUrl, $extensionUrl, true, array(), array(), 'linkeddata', 'none', 'update', true, array(__CLASS__, 'filter'));
+        $res = DatagatheringController::import($extensionUrl, $extensionUrl, $extensionUrl, true, array(), array(), 'linkeddata', 'none', 'update', true, array(__CLASS__, 'filter'), false);
         return $res;
     }
 
