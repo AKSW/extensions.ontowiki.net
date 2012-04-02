@@ -917,20 +917,22 @@ class DatagatheringController extends OntoWiki_Controller_Component
      * @param string $fetchMode
      * @param string $action
      * @param boolean $versioning
+     * @param callback $filterCallback
+     * @param boolean $useAc
      * @return int status code
      */
-    //TODO refactor these 11 parameters (use a config object or break it down with adapters etc)
+    //TODO refactor these 12 parameters (use a config object or break it down with adapters etc)
     public static function import (
         $graphUri, $uri, $locator, $all = true, $presets = array(),
         $exceptedProperties = array(), $wrapperName = 'linkeddata', $fetchMode = 'none',
-        $action = 'add', $versioning = true, $filterCallback = null
+        $action = 'add', $versioning = true, $filterCallback = null, $useAc = true
     )
     {
         // Check whether user is allowed to write the model.
         $erfurt = Erfurt_App::getInstance();
         $store = $erfurt->getStore();
         $storeGraph = $store->getModel($graphUri);
-        if (!$storeGraph || !$storeGraph->isEditable()) {
+        if ($useAc && (!$storeGraph || !$storeGraph->isEditable())) {
             return self::IMPORT_NOT_EDITABLE;
         }
 
@@ -993,7 +995,7 @@ class DatagatheringController extends OntoWiki_Controller_Component
                     }
                     
                     if ($action == 'add') {
-                        $store->addMultipleStatements($graphUri, $newStatements);
+                        $store->addMultipleStatements($graphUri, $newStatements, $useAc);
                     } else if ($action == 'update') {
                         $queryoptions = array(
                             'use_ac'                 => false,
