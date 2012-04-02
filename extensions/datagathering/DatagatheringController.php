@@ -1012,7 +1012,8 @@ class DatagatheringController extends OntoWiki_Controller_Component
                         $modelNew = new Erfurt_Rdf_MemoryModel($newStatements);
                         $storeGraph->updateWithMutualDifference(
                             $modelOld->getStatements(),
-                            $modelNew->getStatements()
+                            $modelNew->getStatements(),
+                            false
                         );
                     }
 
