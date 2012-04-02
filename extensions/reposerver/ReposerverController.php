@@ -102,10 +102,10 @@ class ReposerverController extends OntoWiki_Controller_Component
             );
         }
         //import
-        $store->addStatement($repoGraphUrl, $repoGraphUrl, EF_OWL_IMPORTS, array('value'=>$extensionUrl, 'type'=>'uri'));
+        $store->addStatement($repoGraphUrl, $repoGraphUrl, EF_OWL_IMPORTS, array('value'=>$extensionUrl, 'type'=>'uri'), false);
 
         //connect repo to that extension
-        $store->addStatement($extensionUrl, $repoGraphUrl, self::OW_CONFIG_NS.'hasExtension', array('value'=>$extensionUrl, 'type'=>'uri'));
+        $store->addStatement($extensionUrl, $repoGraphUrl, self::OW_CONFIG_NS.'hasExtension', array('value'=>$extensionUrl, 'type'=>'uri'), false);
         
 
         //fill new model via linked data
