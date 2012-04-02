@@ -114,62 +114,76 @@ class ReposerverController extends OntoWiki_Controller_Component
         return $res;
     }
 
+    /**
+     * this method is passed as a callback to Datagathering::import
+     * some checks are made
+     * some information is infered
+     * @param array $statements
+     * @return array
+     * @throws Exception 
+     */
     static function filter($statements)
     {
         $model = new Erfurt_Rdf_MemoryModel($statements);
         $extensionUri = $model->getValue('', self::FOAF_NS.'primaryTopic');
         //$privateNS = $model->getValue($extensionUri, self::OW_CONFIG_NS.'privateNamespace');
-        $allowedSubjects = array('', $extensionUri); //TODO @base is empty when parsing n3
         $releases = $model->getValues($extensionUri, self::DOAP_NS.'release');
-        foreach ($releases as $value) {
-            $allowedSubjects[] = $value['value']; //add release versions as allowed subjects
-        }
-        //$logger = Erfurt_App::getInstance()->getLog('repo');
-        //$logger->log('$allowedSubjects: '. print_r($allowedSubjects, true), 1);
+        $maintainerUri = $model->getValue($extensionUri, self::DOAP_NS.'maintainer');
 
-        $allowedPredicates = array(
-            EF_RDF_TYPE,
-            EF_RDFS_LABEL,
-            self::DOAP_NS.'name',
-            self::DOAP_NS.'description',
-            self::DOAP_NS.'maintainer',
-            self::OW_CONFIG_NS.'authorLabel',
-            self::OW_CONFIG_NS.'latestZip',
-            self::OW_CONFIG_NS.'latestRevision',
-            self::DOAP_NS.'release', //links to the versions
-            self::DOAP_NS.'revision', //the following are properties of the versions
-            self::DOAP_NS.'created',
-            self::DOAP_NS.'file-release'
+        $schema =array(
+            $extensionUri => array(
+                EF_RDF_TYPE=>false, //this booleans means "mandatory"
+                EF_RDFS_LABEL=>false,
+                self::DOAP_NS.'name'=>true,
+                self::DOAP_NS.'description'=>true,
+                self::DOAP_NS.'maintainer'=>true,
+                self::DOAP_NS.'homepage'=>false,
+                self::OW_CONFIG_NS.'latestZip'=>false,
+                self::OW_CONFIG_NS.'registeredAt'=>false,
+                self::OW_CONFIG_NS.'latestRevision'=>false,
+                self::DOAP_NS.'release'=>true //links to the versions
+            ),
+            $maintainerUri => array(            
+                self::FOAF_NS.'mbox'=>false,
+                self::FOAF_NS.'name'=>true,
+                self::FOAF_NS.'homepage'=>false,
+                EF_RDF_TYPE=>false
+            )
         );
+        foreach($releases as $release){
+            $schema[$release['value']] = array(
+                self::DOAP_NS.'revision'=>true,
+                self::DOAP_NS.'created'=>false,
+                self::DOAP_NS.'file-release'=>true
+            );
+        }
         
-        $requiredPredicates = array(
-            EF_RDF_TYPE,
-            EF_RDFS_LABEL,
-            self::DOAP_NS.'name',
-            self::DOAP_NS.'description',
-            self::DOAP_NS.'maintainer',
-            self::OW_CONFIG_NS.'latestZip',
-            self::OW_CONFIG_NS.'latestRevision'
-        );
-        $foundPredicates = array();
-        foreach($requiredPredicates as $p){
-            $foundPredicates[$p] = false;
+        //check for missing properties
+        foreach($schema as $s => $ps){
+            foreach($ps as $p=>$mandatory){
+                if($mandatory && !$model->hasSP($s, $p)){
+                    echo "missing $s $p";
+                    throw new Exception('missing property '.$property);
+                }
+            }
         }
 
+        //check for forbidden subjects
         foreach ($model->getSubjects() as $subject) {
-            if (!in_array($subject, $allowedSubjects)) {
+            if (!isset($schema[$subject])) {
                 $model->removeS($subject);
             } else {
+                //check for forbidden properties
                 foreach ($model->getPO($subject) as $predicate => $values) {
-                    $foundPredicates[$predicate] = true;
-                    if (!in_array($predicate, $allowedPredicates)) {
+                    if (!isset($schema[$subject][$predicate])) {
                         $model->removeSP($subject, $predicate);
                     }
                 }
             }
         }
                 
-        //generate latest version triple, if not present (the extensionlist cannot display the indirect property of the version)
+        //shortcut latest version triple (the extensionlist cannot display the indirect properties)
+        //TODO implement indirect properties in OntoWiki_Model_Instances 
         if($model->getValue($extensionUri, self::OW_CONFIG_NS.'latestZip') == null){
             $newestVersion = null;
             $newestRevisionNumber = null;
@@ -187,15 +201,25 @@ class ReposerverController extends OntoWiki_Controller_Component
             if($newestFile != null){
                 $model->addRelation($extensionUri, self::OW_CONFIG_NS.'latestZip', $newestFile);
                 $model->addAttribute($extensionUri, self::OW_CONFIG_NS.'latestRevision', $newestRevisionNumber);
-                $foundPredicates[self::OW_CONFIG_NS.'latestZip']  = true;
-                $foundPredicates[self::OW_CONFIG_NS.'latestRevision']  = true;
             }
         }
-        
-        //check if all required predicates occured
-        foreach($foundPredicates as $property => $found){
-            if(!$found){
-                throw new Exception('missing property '.$property);
+        //shortcut author info 
+        if($model->getValue($extensionUri, self::OW_CONFIG_NS.'authorLabel') == null){
+            $authorLabel = $model->getValue($maintainerUri, self::FOAF_NS.'name');
+            if($newestFile != null){
+                $model->addRelation($extensionUri, self::OW_CONFIG_NS.'authorLabel', $authorLabel);
+            }
+        }
+        if($model->getValue($extensionUri, self::OW_CONFIG_NS.'authorPage') == null){
+            $authorPage = $model->getValue($maintainerUri, self::FOAF_NS.'homepage');
+            if($authorPage != null){
+                $model->addRelation($extensionUri, self::OW_CONFIG_NS.'authorPage', $authorPage);
+            }
+        }
+        if($model->getValue($extensionUri, self::OW_CONFIG_NS.'authorMail') == null){
+            $authorMail = $model->getValue($maintainerUri, self::FOAF_NS.'mbox');
+            if($authorMail != null){
+                $model->addRelation($extensionUri, self::OW_CONFIG_NS.'authorMail', $authorMail);
             }
         }
 
