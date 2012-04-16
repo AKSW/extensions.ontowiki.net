@@ -139,6 +139,7 @@ class ReposerverController extends OntoWiki_Controller_Component
                 self::DOAP_NS.'maintainer'=>true,
                 self::DOAP_NS.'homepage'=>false,
                 self::OW_CONFIG_NS.'latestZip'=>false,
+                self::OW_CONFIG_NS.'minOWVersion'=>false,
                 self::OW_CONFIG_NS.'registeredAt'=>false,
                 self::OW_CONFIG_NS.'latestRevision'=>false,
                 self::DOAP_NS.'release'=>true //links to the versions
