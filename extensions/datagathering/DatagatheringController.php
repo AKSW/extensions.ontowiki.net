@@ -59,7 +59,6 @@ class DatagatheringController extends OntoWiki_Controller_Component
     CONST IMPORT_WRAPPER_NOT_AVAILABLE = 70;
     CONST IMPORT_CUSTOMFILTER_EXCEPTION = 80;
 
-
     // ------------------------------------------------------------------------
     // --- Import and Sync related private properties -------------------------
     // ------------------------------------------------------------------------
@@ -993,7 +992,7 @@ class DatagatheringController extends OntoWiki_Controller_Component
                         // Start action, add statements, finish action.
                         $versioning->startAction($actionSpec);
                     }
-                    
+
                     if ($action == 'add') {
                         $store->addMultipleStatements($graphUri, $newStatements, $useAc);
                     } else if ($action == 'update') {
