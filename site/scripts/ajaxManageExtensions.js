@@ -2,12 +2,14 @@
 $(document).ready(function(){
     function doUpdate(){
         var url = $("#updateExtensionInput").val()
+        $("#updateExtensionInput").css("background", "url('extensions/themes/silverblue/images/spinner.gif') no-repeat center white").attr('disabled','disabled');
         if(url != "" && url != $("#updateExtensionInput").attr("title")){
             $.ajax({
                 type: 'POST',
                 url: "reposerver/update",
                 data: {"url": url },
                 success: function(data, status){
+                    $("#updateExtensionInput").css("background", 'white').removeAttr('disabled');
                     if(data.status){
                         alert("extension registered/updated")
                         //reset input field
@@ -17,6 +19,7 @@ $(document).ready(function(){
                     }
                 },
                 error: function (){
+                    $("#updateExtensionInput").css("background", 'white').removeAttr('disabled');
                      alert("unexpected response")
                 },
                 dataType: "json"
@@ -25,10 +28,9 @@ $(document).ready(function(){
     }
     $("#updateExtensionInput").keypress(function(e){
       if(e.which == 13){
+        //submit on enter
         doUpdate();
       }
-      e.preventDefault();
-      return false;
     });
     $("#updateExtensionButton").click(doUpdate)
 })
