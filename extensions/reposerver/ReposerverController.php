@@ -27,7 +27,6 @@ class ReposerverController extends OntoWiki_Controller_Component
         $this->_forward('update');
     }
 
-
     public function updateAction()
     {
         if ($this->_request->isPost()) {
@@ -156,7 +155,8 @@ class ReposerverController extends OntoWiki_Controller_Component
                 self::DOAP_NS.'revision'=>true,
                 self::DOAP_NS.'created'=>false,
                 self::OW_CONFIG_NS.'minOWVersion'=>false,
-                self::DOAP_NS.'file-release'=>true
+                self::DOAP_NS.'file-release'=>true,
+                EF_RDF_TYPE=>false
             );
         }
         
@@ -181,52 +181,6 @@ class ReposerverController extends OntoWiki_Controller_Component
                         $model->removeSP($subject, $predicate);
                     }
                 }
-            }
-        }
-                
-        //shortcut latest version triple (the extensionlist cannot display the indirect properties)
-        //TODO implement indirect properties in OntoWiki_Model_Instances 
-        if($model->getValue($extensionUri, self::OW_CONFIG_NS.'latestZip') == null){
-            $newestVersion = null;
-            $newestRevisionNumber = null;
-            foreach($releases as $release){
-                $revisionNumber = $model->getValue($release['value'], self::DOAP_NS.'revision');
-                if($revisionNumber == null){
-                    continue;
-                }
-
-                if($newestVersion == null || version_compare($revisionNumber, $newestRevisionNumber, '>')){
-                    $newestVersion = $release['value'];
-                    $newestRevisionNumber = $revisionNumber;
-                }
-            }
-            $newestFile = $model->getValue($newestVersion, self::DOAP_NS.'file-release');
-            if($newestFile != null){
-                $model->addRelation($extensionUri, self::OW_CONFIG_NS.'latestZip', $newestFile);
-                $model->addAttribute($extensionUri, self::OW_CONFIG_NS.'latestRevision', $newestRevisionNumber);
-                $minOW = $model->getValue($newestVersion, self::OW_CONFIG_NS.'minOWVersion');
-                if($minOW != null){
-                    $model->addAttribute($extensionUri, self::OW_CONFIG_NS.'minOWVersion', $minOW);
-                }
-            }
-        }
-        //shortcut author info 
-        if($model->getValue($extensionUri, self::OW_CONFIG_NS.'authorLabel') == null){
-            $authorLabel = $model->getValue($maintainerUri, self::FOAF_NS.'name');
-            if($newestFile != null){
-                $model->addAttribute($extensionUri, self::OW_CONFIG_NS.'authorLabel', $authorLabel);
-            }
-        }
-        if($model->getValue($extensionUri, self::OW_CONFIG_NS.'authorPage') == null){
-            $authorPage = $model->getValue($maintainerUri, self::FOAF_NS.'homepage');
-            if($authorPage != null){
-                $model->addRelation($extensionUri, self::OW_CONFIG_NS.'authorPage', $authorPage);
-            }
-        }
-        if($model->getValue($extensionUri, self::OW_CONFIG_NS.'authorMail') == null){
-            $authorMail = $model->getValue($maintainerUri, self::FOAF_NS.'mbox');
-            if($authorMail != null){
-                $model->addRelation($extensionUri, self::OW_CONFIG_NS.'authorMail', $authorMail);
             }
         }
 
