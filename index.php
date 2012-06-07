@@ -2,7 +2,7 @@
 /**
  * This file is part of the {@link http://ontowiki.net OntoWiki} project.
  *
- * @copyright Copyright (c) 2011, {@link http://aksw.org AKSW}
+ * @copyright Copyright (c) 2012, {@link http://aksw.org AKSW}
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
 
@@ -35,8 +35,9 @@ set_error_handler('errorHandler');
  * @since 0.9.5
  */
 define('BOOTSTRAP_FILE', basename(__FILE__));
-define('ONTOWIKI_ROOT', rtrim(dirname(__FILE__), '/\\') . '/');
-define('APPLICATION_PATH', ONTOWIKI_ROOT . 'application/');
+define('ONTOWIKI_ROOT', rtrim(__DIR__, '/\\') . DIRECTORY_SEPARATOR);
+define('APPLICATION_PATH', ONTOWIKI_ROOT . 'application'.DIRECTORY_SEPARATOR);
+define('CACHE_PATH', ONTOWIKI_ROOT . 'cache'.DIRECTORY_SEPARATOR);
 
 /**
  * Old constants for < 0.9.5 backward compatibility

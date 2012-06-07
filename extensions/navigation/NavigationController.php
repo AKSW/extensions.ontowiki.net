@@ -1,16 +1,22 @@
 <?php
 /**
+ * This file is part of the {@link http://ontowiki.net OntoWiki} project.
+ *
+ * @copyright Copyright (c) 2012, {@link http://aksw.org AKSW}
+ * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
+ */
+
+require_once 'Erfurt/Sparql/Query2.php';
+
+/**
  * Controller for OntoWiki Navigation Module
  *
  * @category   OntoWiki
- * @package    extensions_components_navigation
+ * @package    Extensions_Navigation
  * @author     Sebastian Tramp <tramp@informatik.uni-leipzig.de>
- * @copyright  Copyright (c) 2009, {@link http://aksw.org AKSW}
+ * @copyright  Copyright (c) 2012, {@link http://aksw.org AKSW}
  * @license    http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
- 
-require_once 'Erfurt/Sparql/Query2.php';
-
 class NavigationController extends OntoWiki_Controller_Component
 {
     private $store;
@@ -46,7 +52,7 @@ class NavigationController extends OntoWiki_Controller_Component
         }
         if (empty($this->model)) {
             throw new OntoWiki_Exception('Missing parameter m (model) and no selected model in session!');
-            exit;
+            return;
         }
         // create title helper
         $this->titleHelper = new OntoWiki_Model_TitleHelper($this->model);
@@ -62,7 +68,7 @@ class NavigationController extends OntoWiki_Controller_Component
      */
     public function exploreAction() {
         // disable standart navigation
-        OntoWiki_Navigation::disableNavigation();
+        OntoWiki::getInstance()->getNavigation()->disableNavigation();
         // log action
         //$this->_owApp->logger->info('NavigationController Stage 1');
         // translate navigation title to selected language
@@ -72,7 +78,7 @@ class NavigationController extends OntoWiki_Controller_Component
         // check if setup is present
         if (empty($this->_request->setup)) {
             throw new OntoWiki_Exception('Missing parameter setup !');
-            exit;
+            return;
         }
         // decode setup from JSON into array
         $this->setup = json_decode($this->_request->getParam('setup'));
@@ -80,7 +86,7 @@ class NavigationController extends OntoWiki_Controller_Component
         // check if setup was not converted
         if ($this->setup == false) {
             throw new OntoWiki_Exception('Invalid parameter setup (json_decode failed): ' . $this->_request->setup);
-            exit;
+            return;
         }
 
         // overwrite the hard limit with the given one

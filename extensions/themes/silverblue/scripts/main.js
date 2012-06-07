@@ -298,16 +298,24 @@ $(document).ready(function() {
     // init new resource based on type
     $('.init-resource').click(function(event) {
         // parse .resource-list and query for all types
-        var types = $('.resource-list').rdf()
-                                       .where('?type a rdfs:Class')
-                                       .where('?type rdfs:label ?value')
-                                       .dump();
+        if ($('.resource-list').length != 0) {
+            var types = $('.resource-list').rdf()
+                                           .where('?type a rdfs:Class')
+                                           .where('?type rdfs:label ?value')
+                                           .dump();
 
-        if (Object.keys(types).length == 1) {
-            createInstanceFromClassURI(Object.keys(types)[0]);
+            if (Object.keys(types).length == 1) {
+                createInstanceFromClassURI(Object.keys(types)[0]);
+            } else {
+                showAddInstanceMenu(event, types);
+            }
         } else {
-            showAddInstanceMenu(event, types);
-        } 
+            // workaround to create instance when number of instances of a class is null
+            // The selected class should be hardcoded by ontowiki in the header as 
+            // javascript variable.
+            createInstanceFromClassURI($('#filterbox a').attr('about'));
+        }
+        
     });
 
     $('.edit.save').click(function() {
@@ -315,6 +323,7 @@ $(document).ready(function() {
     });
     
     $('.edit.cancel').click(function() {
+        $(body).data('editingMode', false);
         // reload page
         window.location.href = window.location.href;
         RDFauthor.cancel();
@@ -332,6 +341,7 @@ $(document).ready(function() {
     
     // edit mode
     $('.edit-enable').click(function() {
+        $(body).data('editingMode', true);
         var button = this;
         if ($(button).hasClass('active')) {
             RDFauthor.cancel();
@@ -445,6 +455,7 @@ $(document).ready(function() {
     
     // add property
     $('.property-add').click(function() {
+        $(body).data('editingMode', true);
         if(typeof(RDFauthor) === 'undefined') {
             loadRDFauthor(function () {
                 RDFauthor.setOptions({
