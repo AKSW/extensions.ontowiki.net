@@ -82,3 +82,4 @@ If you maintain more than a single extension, maybe to {{link l="Tools" text="to
 """^^sysont:Markdown;
     rdfs:label "Tools".
 
+<http://extensions.ontowiki.net/repository> a owl:Thing.
