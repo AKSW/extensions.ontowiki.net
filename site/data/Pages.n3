@@ -63,14 +63,14 @@ If you maintain more than a single extension, maybe to {{link l="Tools" text="to
     site:content """
 <div class="teasertext">
 <p>On the right side you see a <strong>rough checklist</strong>, what you need in order to register an extension here.</p>
-<p>More documentation is coming soon, until then - please have a look on <strong>existing extensions</strong>.</p>
+<p>More documentation is available <a href="https://github.com/AKSW/OntoWiki/wiki/Extension-Repository">here</a>.</p>
 </div>
 <div class="teaserapplication">
     <ul class="bigger">
-        <li>Develop your OntoWiki extension and release it somewhere</li>
-        <li>Create an RDF document which describes your extension</li>
-        <li>Publish that description document as Linked Data on the web</li>
-        <li>Ping this registry to integrate your extension meta data here</li>
+        <li><a href="https://github.com/AKSW/OntoWiki/wiki/Extensions">Develop</a> your OntoWiki extension and release a ZIP of it somewhere</li>
+        <li>Create an RDF document which describes your extension using <a href="https://github.com/edumbill/doap/wiki">DOAP</a> vocabulary</li>
+        <li>Publish that description document as <a href="http://www4.wiwiss.fu-berlin.de/bizer/pub/LinkedDataTutorial/">Linked Data</a> on the web</li>
+        <li><a href="https://github.com/AKSW/OntoWiki/wiki/SemanticPingback">Ping</a> from your DOAP description to this registry (or just enter the URI here)</li>
     </ul>
 </div>
 """^^sysont:Markdown;
