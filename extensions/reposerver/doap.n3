@@ -12,7 +12,7 @@
   doap:name "reposerver" ;
   owconfig:privateNamespace <https://github.com/AKSW/reposerver/raw/master/doap.n3#> ;
   owconfig:templates "templates" ;
-  owconfig:enabled "false"^^xsd:boolean ;
+  owconfig:enabled "true"^^xsd:boolean ;
   owconfig:defaultAction "display" ;
   rdfs:label "OntoWiki Extension Repository Server" ;
   doap:description "manage a extension server." ;
