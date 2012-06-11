@@ -1,5 +1,5 @@
 <?php
-require_once 'OntoWiki/Plugin.php';
+require_once 'ReposerverController.php';
 
 class ReposerverPlugin extends OntoWiki_Plugin
 {
@@ -8,11 +8,16 @@ class ReposerverPlugin extends OntoWiki_Plugin
 
     public function onPingReceived($event)
     {
-        if($event->p == ReposerverController::EXTENSION_NS.'registeredAt'){
+        $owApp = OntoWiki::getInstance();
+        $logger = $owApp->logger;
+
+        $logger->debug('onPingReceived called');
+        if ($event->p == ReposerverController::OW_CONFIG_NS.'registeredAt') {
             try{
-                ReposerverController::addExtension($event->s, $this->_privateConfig->url);            
+                ReposerverController::addExtension($event->s, $this->_privateConfig->url);
+                $logger->debug('Success');
             } catch ( Exception $e){
-                $this->_log('Error: '.$e);
+                $logger->debug('Error: '.$e);
             }
         }
     }
