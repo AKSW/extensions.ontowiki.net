@@ -32,14 +32,7 @@ class ReposerverController extends OntoWiki_Controller_Component
         if ($this->_request->isPost()) {
             $url = $this->_request->getParam('url');
 
-            $store = $this->_erfurt->getStore();
-
             $repoGraphUrl = $this->_privateConfig->url;
-            if($store->isModelAvailable($repoGraphUrl)){
-                $repoGraph = $store->getModel($repoGraphUrl);
-            } else {
-                $repoGraph = $store->getNewModel($repoGraphUrl, '', Erfurt_Store::MODEL_TYPE_OWL, false);
-            }
 
             $res = self::addExtension($url, $repoGraphUrl);
 
@@ -91,25 +84,41 @@ class ReposerverController extends OntoWiki_Controller_Component
         }
 
         //import each extension into its own model
-        if (!$store->isModelAvailable($extensionUrl)){
-            // create model
-            $store->getNewModel(
-                $extensionUrl,
-                '',
-                Erfurt_Store::MODEL_TYPE_OWL,
-                false
-            );
+        if ($store->isModelAvailable($extensionUrl)) {
+            //delete if exists
+            $store->deleteModel($extensionUrl, false);
         }
-        //import
+        // create model
+        $store->getNewModel(
+            $extensionUrl,
+            '',
+            Erfurt_Store::MODEL_TYPE_OWL,
+            false
+        );
+        
+        //owl:imports
         $store->addStatement($repoGraphUrl, $repoGraphUrl, EF_OWL_IMPORTS, array('value'=>$extensionUrl, 'type'=>'uri'), false);
 
         //connect repo to that extension
         $store->addStatement($extensionUrl, $repoGraphUrl, self::OW_CONFIG_NS.'hasExtension', array('value'=>$extensionUrl, 'type'=>'uri'), false);
-        
 
         //fill new model via linked data
         require_once $ow->extensionManager->getExtensionPath('datagathering') . DIRECTORY_SEPARATOR . 'DatagatheringController.php';
-        $res = DatagatheringController::import($extensionUrl, $extensionUrl, $extensionUrl, true, array(), array(), 'Linkeddata', 'none', 'update', true, array(__CLASS__, 'filter'), false);
+        $res = DatagatheringController::import(
+            $extensionUrl, // graph
+            $extensionUrl, // s
+            $extensionUrl, // s-URL
+            true,
+            array(),
+            array(),
+            'Linkeddata',
+            'none',
+            'update',
+            true,
+            array(__CLASS__, 'filter'),
+            false
+        );
+        
         return $res;
     }
 
