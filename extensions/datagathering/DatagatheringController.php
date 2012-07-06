@@ -349,7 +349,6 @@ class DatagatheringController extends OntoWiki_Controller_Component
         // comment from seebi: why this issnt set to application/json? with
         //$response->setHeader('Content-Type', 'application/json');
         $response->setBody($body);
-        $response->sendResponse();
     }
 
     /**
@@ -991,7 +990,7 @@ class DatagatheringController extends OntoWiki_Controller_Component
                     } else if ($action == 'update') {
                         $queryoptions = array(
                             'use_ac'                 => false,
-                            'result_format'          => STORE_RESULTFORMAT_EXTENDED,
+                            'result_format'          => Erfurt_Store::RESULTFORMAT_EXTENDED,
                             'use_additional_imports' => false
                         );
                         $oldStatements = $store->sparqlQuery(
@@ -1071,7 +1070,6 @@ class DatagatheringController extends OntoWiki_Controller_Component
 
         $this->_response->setHeader('Content-Type', 'application/json', true);
         $this->_response->setBody(json_encode($returnValue));
-        $this->_response->sendResponse();
     }
 
     // ------------------------------------------------------------------------

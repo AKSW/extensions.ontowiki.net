@@ -152,19 +152,30 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         // set path variables
         $rewriteBase = substr($_SERVER['PHP_SELF'], 0, strpos($_SERVER['PHP_SELF'], BOOTSTRAP_FILE));
         $protocol    = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') ? 'https' : 'http';
-        $port        = (isset($_SERVER['SERVER_PORT']) &&
-            $_SERVER['SERVER_PORT'] != '80' &&
-            $_SERVER['SERVER_PORT'] != '443'
-        )
-             ? (':' . $_SERVER['SERVER_PORT'])
-             : '';
-        $urlBase     = sprintf(
-            '%s://%s%s%s',
-            $protocol,
-            isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost',
-            $port,
-            $rewriteBase
-        );
+
+        if (isset($_SERVER['SERVER_PORT'])
+            && $_SERVER['SERVER_PORT'] != '80' && $_SERVER['SERVER_PORT'] != '443') {
+            $port = ':' . $_SERVER['SERVER_PORT'];
+        } else {
+            $port = '';
+        }
+
+        if (isset($_SERVER['SERVER_NAME']) && strpos($_SERVER['SERVER_NAME'], ':') !== false) {
+            // IPv6
+            $serverName = '[' . $_SERVER['SERVER_NAME'] . ']';
+        } else if (isset($_SERVER['SERVER_NAME'])) {
+            // IPv4 or host name
+            $serverName = $_SERVER['SERVER_NAME'];
+        } else {
+            // localhost
+            $serverName = 'localhost';
+        }
+
+        $urlBase = sprintf('%s://%s%s%s',
+                           $protocol,
+                           $serverName,
+                           $port,
+                           $rewriteBase);
 
         // construct URL variables
         $config->host           = parse_url($urlBase, PHP_URL_HOST);
@@ -233,8 +244,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         $ontoWiki = $this->getResource('OntoWiki');
 
         // require Logger, since Erfurt logger should write into OW logs dir
-        // TODO: Neccessary?
-        // $this->bootstrap('Logger');
+        $this->bootstrap('Logger');
 
         // Reset the Erfurt app for testability... needs to be refactored.
         Erfurt_App::reset();
@@ -245,6 +255,11 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
             throw new OntoWiki_Exception('Error loading Erfurt framework: ' . $ee->getMessage());
         } catch (Exception $e) {
             throw new OntoWiki_Exception('Unexpected error: ' . $e->getMessage());
+        }
+
+        // Access the store in order to check whether connection works
+        if (!$erfurt->getStore()) {
+            return false;
         }
 
         // make available
@@ -286,12 +301,35 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         // initialize logger
         if (is_writable($config->log->path) && ((boolean)$config->log->level !== false)) {
             $levelFilter = new Zend_Log_Filter_Priority((int)$config->log->level, '<=');
+            
+            $logName = $config->log->path . 'ontowiki';
+            
+            // Check whether log can be created with $logName... otherwise append a number.
+            // This needs to be done, since logs may be created by other processes (e.g. with 
+            // testing) and thus can't be opened anymore.
+            for ($i = 0; $i<10; ++$i) {
+                try {
+                    $fullLogName = $logName;
+                    if ($i > 0) {
+                        $fullLogName .= '_' . $i;
+                    }
+                    $fullLogName .= '.log';
+                    
+                    $writer = new Zend_Log_Writer_Stream($fullLogName);
+                    if (null !== $writer) {
+                        break;
+                    }
+                } catch (Zend_Log_Exception $e) {
+                    // Nothing to do... just continue
+                }
+            }
+            
+            if (null !== $writer) {
+                $logger = new Zend_Log($writer);
+                $logger->addFilter($levelFilter);
 
-            $writer = new Zend_Log_Writer_Stream($config->log->path . 'ontowiki.log');
-            $logger = new Zend_Log($writer);
-            $logger->addFilter($levelFilter);
-
-            return $logger;
+                return $logger;
+            }
         }
 
         // fallback to NULL logger
